@@ -2,7 +2,7 @@ package game.entities;
 
 import java.awt.Color;
 
-public class Enemy extends Player {
+public class Enemy extends Entity {
 
 	public Enemy(Integer moves, Integer initialGridX, Integer initialGridY, Integer grid2PosMultiplyer,
 			Integer grid2PosBias, Integer height, Integer width, Color color) {

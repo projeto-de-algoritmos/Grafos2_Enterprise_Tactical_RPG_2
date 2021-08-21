@@ -13,27 +13,27 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import game.entities.Enemy;
+import game.entities.Entity;
 import game.entities.Player;
 import graphs.GraphMatrix;
 import graphs.Position;
 
-public class Panel extends JPanel implements Runnable, MouseListener, MouseMotionListener {
+public class Panel extends JPanel implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
 	private static int WIDTH = 500;
 	private static int HEIGHT = 500;
-	private Player player;
+	private Entity player;
 	private List<Position> preview;
 	private GraphMatrix<Integer> grid;
 	private boolean running;
-	private Thread thread;
 	private int lastMouseX;
 	private int lastMouseY;
 	private boolean inPlayer;
 
 	private List<Enemy> enemies = new ArrayList<Enemy>();
 
-	final int playerMoves = 5;
+	final private int playerMoves = 5;
 
 	private int enemyMoves = 3;
 
@@ -57,54 +57,41 @@ public class Panel extends JPanel implements Runnable, MouseListener, MouseMotio
 
 	private void start() {
 		running = true;
-		thread = new Thread(this);
-		thread.start();
 	}
 
-	public void paint(Graphics g2) {
-		Graphics2D g;
-		g = (Graphics2D) g2;
+	public void paint(Graphics g) {
+		super.paint(g);
+		
+		Graphics2D g2d = (Graphics2D) g;
 
 		// Desenha a Grade (Possivelmente alterar para uma classe)
-		g.clearRect(0, 0, WIDTH, HEIGHT);
-		g.setColor(Color.GREEN);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
-		g.setColor(Color.BLACK);
+		g2d.clearRect(0, 0, WIDTH, HEIGHT);
+		g2d.setColor(Color.GREEN);
+		g2d.fillRect(0, 0, WIDTH, HEIGHT);
+		g2d.setColor(Color.BLACK);
 		int Wsize = WIDTH / 20;
 		int Hsize = HEIGHT / 20;
 		for (int i = 0; i <= WIDTH; i += Wsize) {
-			g.drawLine(i, 0, i, WIDTH);
+			g2d.drawLine(i, 0, i, WIDTH);
 		}
 		for (int i = 0; i <= HEIGHT; i += Hsize) {
-			g.drawLine(0, i, HEIGHT, i);
+			g2d.drawLine(0, i, HEIGHT, i);
 		}
 
 		// Desenha as linhas de caminho
-		drawPreview(g);
+		drawPreview(g2d);
 
 		// Desenha o Jogador
-		player.draw(g);
+		player.draw(g2d);
 
 		// Desenha inimigos
 		for (Enemy enemy : enemies) {
-			enemy.draw(g);
-		}
-	}
-
-	@Override
-	public void run() {
-		while (running) {
-			repaint();
+			enemy.draw(g2d);
 		}
 	}
 
 	public void stop() {
 		running = false;
-		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
@@ -132,6 +119,7 @@ public class Panel extends JPanel implements Runnable, MouseListener, MouseMotio
 				}
 			}
 		}
+		repaint();
 	}
 
 	@Override
@@ -157,6 +145,7 @@ public class Panel extends JPanel implements Runnable, MouseListener, MouseMotio
 				}
 			}
 		}
+		repaint();
 	}
 
 	@Override
@@ -169,6 +158,7 @@ public class Panel extends JPanel implements Runnable, MouseListener, MouseMotio
 		inPlayer = true;
 		lastMouseX = player.getGridX();
 		lastMouseY = player.getGridY();
+		repaint();
 	}
 
 	@Override
