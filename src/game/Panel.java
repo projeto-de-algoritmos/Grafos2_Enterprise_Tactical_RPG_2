@@ -190,7 +190,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	private void encontraCaminho() {
 		preview = grid.bfs(new Position(player.getGridX(), player.getGridY()), new Position(lastMouseX, lastMouseY));
-		grid.clearMatrix();
+		grid.setVisitedToEmpty();;
 	}
 
 	private void encontraCaminhoInimigos() {
@@ -206,7 +206,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 					enemy.setGridY(caminho.get(caminho.size() - 1).getPosY());
 				}
 			}
-			grid.clearMatrix();
+			grid.setVisitedToEmpty();;
 		}
 	}
 

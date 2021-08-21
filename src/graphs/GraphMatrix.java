@@ -44,6 +44,20 @@ public class GraphMatrix<T> {
 		}
 	}
 
+	public void changeValues(T oldValue, T newValue) {
+		for (int i = 0; i < getSizeX(); i++) {
+			for (int j = 0; j < getSizeY(); j++) {
+				if (matrix.get(i).get(j).equals(oldValue)) {
+					matrix.get(i).set(j, newValue);
+				}
+			}
+		}
+	}
+
+	public void setVisitedToEmpty() {
+		changeValues(VISITED, EMPTY);
+	}
+
 	public void setLine(Integer lineIndex, T value) {
 		if (!validLineIndex(lineIndex)) {
 			throw new IndexOutOfBoundsException();

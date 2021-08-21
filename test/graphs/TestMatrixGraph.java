@@ -103,7 +103,7 @@ class TestMatrixGraph {
 		assertEquals(false, path.isEmpty());
 		
 		System.out.println("path");
-		gm.clearMatrix();
+		gm.setVisitedToEmpty();
 		
 		for (Position p : path) {
 			gm.setElement(p.getPosX(), p.getPosY(), gm.getVISITED());
