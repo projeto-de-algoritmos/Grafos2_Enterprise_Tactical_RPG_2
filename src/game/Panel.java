@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -55,16 +56,25 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		enemies.add(new Enemy(enemyMoves, 10, 15, 25, 8, 10, 10, Color.RED));
 		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, -1, initialCost);
 		preview = new ArrayList<Position>();
-		map = new Map(grid, WIDTH, HEIGHT, 20, 20);
-		addRandomCosts(10); 
+		
+		// Dicionário de custo/cores
+		HashMap<Integer, Color> hash = new HashMap<Integer, Color>();
+		hash.put(initialCost, Color.GREEN);
+		hash.put(initialCost+1, Color.YELLOW);
+		hash.put(initialCost+2, Color.ORANGE);
+		hash.put(initialCost+3, Color.MAGENTA);
+		
+		map = new Map(grid, hash, WIDTH, HEIGHT, 20, 20);
+		addRandomCosts(10, hash.size()); 
+		
 		start();
 	}
 	// Altera o custo de até <number> casas aleatórias(Temporário)
-	private void addRandomCosts(int number) {
-		for(int i=0;i<number;i++) {
+	private void addRandomCosts(int number, int max) {
+		for(int i=1;i<=number;i++) {
 			int randomNumA = ThreadLocalRandom.current().nextInt(0, 20);
 			int randomNumB = ThreadLocalRandom.current().nextInt(0, 20);
-			grid.setElementCost(randomNumA, randomNumB, 1);
+			grid.setElementCost(randomNumA, randomNumB, i%max);
 		}
 	}
 

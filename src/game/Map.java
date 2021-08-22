@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 
 import graphs.GraphMatrix;
 
@@ -14,8 +15,9 @@ public class Map {
 	private int height;
 	private int tileSizeW;
 	private int tileSizeH;
+	private HashMap<Integer, Color> hash;
 	
-	public Map(GraphMatrix<Integer, Integer> graph, int width, int height ,int numTilesH, int numTilesW) {
+	public Map(GraphMatrix<Integer, Integer> graph, HashMap<Integer, Color> hash, int width, int height ,int numTilesH, int numTilesW) {
 		this.graph = graph;
 		this.width = width;
 		this.height = height;
@@ -23,6 +25,7 @@ public class Map {
 		this.numTilesW = numTilesW;
 		this.tileSizeH = height/numTilesH;
 		this.tileSizeW = width/numTilesW;
+		this.hash = hash;
 	}
 	
 	public void draw(Graphics2D g2d) {
@@ -41,12 +44,12 @@ public class Map {
 	}
 
 	private Color checkColor(int i, int j) {
-		// Cor Default(Custo padrão)
-		Color color = Color.GREEN;
-		// Outro custo(Temporário)
-		if (graph.getElementCost(i, j) != 0)
-			color = Color.YELLOW;
-		return color;
+		Color color = hash.get(graph.getElementCost(i, j));
+		if (color != null)
+			return hash.get(graph.getElementCost(i, j));
+		else
+			// Custo não mapeado
+			return Color.GRAY;
 	}
 	
 }
