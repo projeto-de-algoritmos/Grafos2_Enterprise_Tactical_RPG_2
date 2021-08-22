@@ -6,32 +6,35 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-public class GraphMatrix<T> {
+public class GraphMatrix<ValueT, CostT> {
 	final private Integer sizeX;
 	final private Integer sizeY;
-	final private T VISITED;
-	final private T EMPTY;
-	final private T FORBIDDEN;
+	final private ValueT VISITED;
+	final private ValueT EMPTY;
+	final private ValueT FORBIDDEN;
+	final private CostT INITIALCOST;
 
-	private List<List<T>> matrix;
+	private List<List<DefaultMatrixElement<ValueT, CostT>>> matrix;
 
-	public GraphMatrix(Integer lines, Integer columns, T emptyValue, T visitedValue, T forbiddenValue) {
+	public GraphMatrix(Integer lines, Integer columns, ValueT emptyValue, ValueT visitedValue, ValueT forbiddenValue,
+			CostT initialCost) {
 		this.sizeX = lines;
 		this.sizeY = columns;
 		this.EMPTY = emptyValue;
 		this.VISITED = visitedValue;
 		this.FORBIDDEN = forbiddenValue;
+		this.INITIALCOST = initialCost;
 
 		initMatrix();
 	}
 
 	private void initMatrix() {
-		matrix = new ArrayList<List<T>>(getSizeX());
+		matrix = new ArrayList<List<DefaultMatrixElement<ValueT, CostT>>>(getSizeX());
 
 		for (int i = 0; i < getSizeX(); i++) {
-			matrix.add(i, new ArrayList<T>(getSizeY()));
+			matrix.add(i, new ArrayList<DefaultMatrixElement<ValueT, CostT>>(getSizeY()));
 			for (int j = 0; j < getSizeY(); j++) {
-				matrix.get(i).add(j, EMPTY);
+				matrix.get(i).add(j, new DefaultMatrixElement<ValueT, CostT>(EMPTY, INITIALCOST));
 			}
 		}
 	}
@@ -39,16 +42,16 @@ public class GraphMatrix<T> {
 	public void clearMatrix() {
 		for (int i = 0; i < getSizeX(); i++) {
 			for (int j = 0; j < getSizeY(); j++) {
-				matrix.get(i).set(j, EMPTY);
+				matrix.get(i).get(j).setElement(EMPTY, INITIALCOST);
 			}
 		}
 	}
 
-	public void changeValues(T oldValue, T newValue) {
+	public void changeValues(ValueT oldValue, ValueT newValue) {
 		for (int i = 0; i < getSizeX(); i++) {
 			for (int j = 0; j < getSizeY(); j++) {
-				if (matrix.get(i).get(j).equals(oldValue)) {
-					matrix.get(i).set(j, newValue);
+				if (matrix.get(i).get(j).getValue().equals(oldValue)) {
+					matrix.get(i).get(j).setValue(newValue);
 				}
 			}
 		}
@@ -58,76 +61,109 @@ public class GraphMatrix<T> {
 		changeValues(VISITED, EMPTY);
 	}
 
-	public void setLine(Integer lineIndex, T value) {
-		if (!validLineIndex(lineIndex)) {
-			throw new IndexOutOfBoundsException();
-		}
-
+	public void setLineValue(Integer lineIndex, ValueT value) {
 		for (int i = 0; i < matrix.get(lineIndex).size(); i++) {
-			matrix.get(lineIndex).set(i, value);
+			setElementValue(lineIndex, i, value);
 		}
 	}
 
-	public void setColumn(Integer columnIndex, T value) {
-		if (!validColumnIndex(columnIndex)) {
-			throw new IndexOutOfBoundsException();
-		}
-
+	public void setColumnValue(Integer columnIndex, ValueT value) {
 		for (int i = 0; i < matrix.size(); i++) {
-			matrix.get(i).set(columnIndex, value);
+			setElementValue(i, columnIndex, value);
 		}
 	}
 
-	public void setElement(Integer lineIndex, Integer columnIndex, T value) {
-		if (!validLineIndex(lineIndex)) {
-			throw new IndexOutOfBoundsException();
+	public void setLineCost(Integer lineIndex, CostT cost) {
+		for (int i = 0; i < matrix.get(lineIndex).size(); i++) {
+			setElementCost(lineIndex, i, cost);
 		}
-		if (!validColumnIndex(columnIndex)) {
-			throw new IndexOutOfBoundsException();
-		}
-
-		matrix.get(lineIndex).set(columnIndex, value);
 	}
 
-	private Boolean validLineIndex(Integer lineIndex) {
+	public void setColumnCost(Integer columnIndex, CostT cost) {
+		for (int i = 0; i < matrix.size(); i++) {
+			setElementCost(i, columnIndex, cost);
+		}
+	}
+
+	public void setElementValue(Position p, ValueT value) {
+		setElementValue(p.getPosX(), p.getPosY(), value);
+	}
+
+	public void setElementCost(Position p, CostT cost) {
+		setElementCost(p.getPosX(), p.getPosY(), cost);
+	}
+
+	public void setElement(Position p, ValueT value, CostT cost) {
+		setElement(p.getPosX(), p.getPosY(), value, cost);
+	}
+
+	public void setElementValue(Integer lineIndex, Integer columnIndex, ValueT value) {
+		if (!isLineIndexValid(lineIndex)) {
+			throw new IndexOutOfBoundsException();
+		}
+		if (!isColumnIndexValid(columnIndex)) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		matrix.get(lineIndex).get(columnIndex).setValue(value);
+	}
+
+	public void setElementCost(Integer lineIndex, Integer columnIndex, CostT cost) {
+		if (!isLineIndexValid(lineIndex)) {
+			throw new IndexOutOfBoundsException();
+		}
+		if (!isColumnIndexValid(columnIndex)) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		matrix.get(lineIndex).get(columnIndex).setCost(cost);
+	}
+
+	public void setElement(Integer lineIndex, Integer columnIndex, ValueT value, CostT cost) {
+		setElementValue(lineIndex, columnIndex, value);
+		setElementCost(lineIndex, columnIndex, cost);
+	}
+
+	private Boolean isLineIndexValid(Integer lineIndex) {
 		return lineIndex >= 0 && lineIndex < getSizeX();
 	}
 
-	private Boolean validColumnIndex(Integer columnIndex) {
+	private Boolean isColumnIndexValid(Integer columnIndex) {
 		return columnIndex >= 0 && columnIndex < getSizeY();
 	}
 
-	private Boolean validElement(Integer lineIndex, Integer columnIndex) {
-		return validLineIndex(lineIndex) && validColumnIndex(columnIndex);
+	private Boolean isElementValid(Integer lineIndex, Integer columnIndex) {
+		return isLineIndexValid(lineIndex) && isColumnIndexValid(columnIndex);
 	}
 
 	private Boolean visitable(Integer lineIndex, Integer columnIndex) {
-		return validElement(lineIndex, columnIndex) ? matrix.get(lineIndex).get(columnIndex).equals(EMPTY) : false;
+		return isElementValid(lineIndex, columnIndex) ? matrix.get(lineIndex).get(columnIndex).getValue().equals(EMPTY)
+				: false;
 	}
 
 	private Position north(Integer lineIndex, Integer columnIndex) {
-		if (validElement(lineIndex, columnIndex + 1)) {
+		if (isElementValid(lineIndex, columnIndex + 1)) {
 			return new Position(lineIndex, columnIndex + 1);
 		}
 		return null;
 	}
 
 	private Position south(Integer lineIndex, Integer columnIndex) {
-		if (validElement(lineIndex, columnIndex - 1)) {
+		if (isElementValid(lineIndex, columnIndex - 1)) {
 			return new Position(lineIndex, columnIndex - 1);
 		}
 		return null;
 	}
 
 	private Position west(Integer lineIndex, Integer columnIndex) {
-		if (validElement(lineIndex - 1, columnIndex)) {
+		if (isElementValid(lineIndex - 1, columnIndex)) {
 			return new Position(lineIndex - 1, columnIndex);
 		}
 		return null;
 	}
 
 	private Position east(Integer lineIndex, Integer columnIndex) {
-		if (validElement(lineIndex + 1, columnIndex)) {
+		if (isElementValid(lineIndex + 1, columnIndex)) {
 			return new Position(lineIndex + 1, columnIndex);
 		}
 		return null;
@@ -195,7 +231,7 @@ public class GraphMatrix<T> {
 				if (visitable(line, column)) {
 					nodeQueue.add(new Position(line, column));
 					visited.add(new Position(line, column));
-					setElement(line, column, VISITED);
+					setElementValue(line, column, VISITED);
 
 					while (!nodeQueue.isEmpty()) {
 						Position p = nodeQueue.remove();
@@ -206,7 +242,7 @@ public class GraphMatrix<T> {
 						} else {
 							for (Position n : ns) {
 								visited.add(n);
-								setElement(n.getPosX(), n.getPosY(), VISITED);
+								setElementValue(n.getPosX(), n.getPosY(), VISITED);
 								nodeQueue.add(n);
 							}
 						}
@@ -219,7 +255,7 @@ public class GraphMatrix<T> {
 	}
 
 	public List<Position> bfs(Position start) {
-		if (!validElement(start.getPosX(), start.getPosY())) {
+		if (!isElementValid(start.getPosX(), start.getPosY())) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
@@ -231,7 +267,7 @@ public class GraphMatrix<T> {
 		}
 
 		nodeQueue.add(new Position(start.getPosX(), start.getPosY()));
-		setElement(start.getPosX(), start.getPosY(), VISITED);
+		setElementValue(start.getPosX(), start.getPosY(), VISITED);
 		visited.add(new Position(start.getPosX(), start.getPosY()));
 
 		while (!nodeQueue.isEmpty()) {
@@ -243,7 +279,7 @@ public class GraphMatrix<T> {
 			} else {
 				for (Position n : ns) {
 					visited.add(n);
-					setElement(n.getPosX(), n.getPosY(), VISITED);
+					setElementValue(n.getPosX(), n.getPosY(), VISITED);
 					nodeQueue.add(n);
 				}
 			}
@@ -253,11 +289,11 @@ public class GraphMatrix<T> {
 	}
 
 	public List<Position> bfs(Position start, Position end) {
-		if (!validElement(start.getPosX(), start.getPosY())) {
+		if (!isElementValid(start.getPosX(), start.getPosY())) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-		if (!validElement(end.getPosX(), end.getPosY())) {
+		if (!isElementValid(end.getPosX(), end.getPosY())) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
@@ -278,7 +314,7 @@ public class GraphMatrix<T> {
 		Boolean foundEndNode = false;
 
 		nodeQueue.add(new Position(start.getPosX(), start.getPosY()));
-		setElement(start.getPosX(), start.getPosY(), VISITED);
+		setElementValue(start.getPosX(), start.getPosY(), VISITED);
 		visited.add(new Position(start.getPosX(), start.getPosY()));
 		parent.add(new Position(start.getPosX(), start.getPosY()));
 
@@ -291,7 +327,7 @@ public class GraphMatrix<T> {
 			} else {
 				for (Position n : ns) {
 					visited.add(n);
-					setElement(n.getPosX(), n.getPosY(), VISITED);
+					setElementValue(n.getPosX(), n.getPosY(), VISITED);
 					nodeQueue.add(n);
 
 					parent.add(p);
@@ -326,6 +362,15 @@ public class GraphMatrix<T> {
 		return path;
 	}
 
+	public Boolean isPathValid(List<Position> ps) {
+		for (Position p : ps) {
+			if (!isElementValid(p.getPosX(), p.getPosY())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void printMatrix() {
 		for (int i = 0; i < getSizeX(); i++) {
 			for (int j = 0; j < getSizeY(); j++) {
@@ -343,19 +388,39 @@ public class GraphMatrix<T> {
 		return sizeY;
 	}
 
-	public T getVISITED() {
+	public ValueT getVISITED() {
 		return VISITED;
 	}
 
-	public T getEMPTY() {
+	public ValueT getEMPTY() {
 		return EMPTY;
 	}
 
-	public T getFORBIDDEN() {
+	public ValueT getFORBIDDEN() {
 		return FORBIDDEN;
 	}
 
-	public List<List<T>> getMatrix() {
+	public CostT getINITIALCOST() {
+		return INITIALCOST;
+	}
+
+	public ValueT getElementValue(Integer lineIndex, Integer columnIndex) {
+		return isElementValid(lineIndex, columnIndex) ? matrix.get(lineIndex).get(columnIndex).getValue() : null;
+	}
+
+	public ValueT getElementValue(Position p) {
+		return getElementValue(p.getPosX(), p.getPosY());
+	}
+
+	public CostT getElementCost(Integer lineIndex, Integer columnIndex) {
+		return isElementValid(lineIndex, columnIndex) ? matrix.get(lineIndex).get(columnIndex).getCost() : null;
+	}
+
+	public CostT getElementCost(Position p) {
+		return getElementCost(p.getPosX(), p.getPosY());
+	}
+
+	public List<List<DefaultMatrixElement<ValueT, CostT>>> getMatrix() {
 		return matrix;
 	}
 

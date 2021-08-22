@@ -12,19 +12,19 @@ public class Position {
 		this.posX = posX;
 		this.posY = posY;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
 		}
-		
+
 		if (!(obj instanceof Position)) {
 			return false;
-		} 
-		
+		}
+
 		Position p = (Position) obj;
-		
+
 		return getPosX().equals(p.getPosX()) && getPosY().equals(p.getPosY());
 	}
 

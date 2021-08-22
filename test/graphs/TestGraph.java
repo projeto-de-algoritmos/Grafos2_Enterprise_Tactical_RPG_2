@@ -228,7 +228,7 @@ class TestGraph {
 
 		tree.printDotFile();
 	}
-	
+
 	@Test
 	void getAnyCycleOnGraphWithNoCycles(TestInfo testInfo) {
 		System.out.println(testInfo.getDisplayName());
@@ -262,7 +262,7 @@ class TestGraph {
 
 		assertNull(tree);
 	}
-	
+
 	@Test
 	void getAnyCycleOnCyclicGraph(TestInfo testInfo) {
 		System.out.println(testInfo.getDisplayName());
@@ -280,24 +280,24 @@ class TestGraph {
 		});
 
 		List<UndirectedEdge<Integer>> edges = new ArrayList<UndirectedEdge<Integer>>();
-		
+
 		for (int i = 0; i < nodes.size() - 1; i++) {
 			edges.add(new UndirectedEdge<Integer>(nodes.get(i), nodes.get(i + 1)));
 		}
-		
-		edges.add(new UndirectedEdge<Integer>(nodes.size() - 1, nodes.size()/2));
+
+		edges.add(new UndirectedEdge<Integer>(nodes.size() - 1, nodes.size() / 2));
 
 		for (UndirectedEdge<Integer> edge : edges) {
 			assertDoesNotThrow(() -> {
 				graph.addEdge(edge);
 			});
 		}
-		
+
 		System.out.println("Original graph");
 		graph.printDotFile();
 
 		tree = graph.getAnyCycle();
-		
+
 		assertNotNull(tree);
 
 		System.out.println("Cycle detected");

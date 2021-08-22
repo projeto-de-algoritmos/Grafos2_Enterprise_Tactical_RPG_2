@@ -25,11 +25,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	private static int HEIGHT = 500;
 	private Entity player;
 	private List<Position> preview;
-	private GraphMatrix<Integer> grid;
+	private GraphMatrix<Integer, Integer> grid;
 	private boolean running;
 	private int lastMouseX;
 	private int lastMouseY;
 	private boolean inPlayer;
+
+	private final int initialCost = 0;
 
 	private List<Enemy> enemies = new ArrayList<Enemy>();
 
@@ -49,7 +51,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		enemies.add(new Enemy(enemyMoves, 10, 10, 25, 8, 10, 10, Color.RED));
 		enemies.add(new Enemy(enemyMoves, 15, 15, 25, 8, 10, 10, Color.RED));
 		enemies.add(new Enemy(enemyMoves, 10, 15, 25, 8, 10, 10, Color.RED));
-		grid = new GraphMatrix<Integer>(20, 20, 0, 1, -1);
+		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, -1, initialCost);
 		preview = new ArrayList<Position>();
 
 		start();
@@ -61,7 +63,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	public void paint(Graphics g) {
 		super.paint(g);
-		
+
 		Graphics2D g2d = (Graphics2D) g;
 
 		// Desenha a Grade (Possivelmente alterar para uma classe)
@@ -113,9 +115,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 			else {
 				inPlayer = false;
 				try {
-				encontraCaminho();
+					encontraCaminho();
 				} catch (ArrayIndexOutOfBoundsException e) {
-					
+
 				}
 			}
 		}
@@ -190,7 +192,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	private void encontraCaminho() {
 		preview = grid.bfs(new Position(player.getGridX(), player.getGridY()), new Position(lastMouseX, lastMouseY));
-		grid.setVisitedToEmpty();;
+		grid.setVisitedToEmpty();
 	}
 
 	private void encontraCaminhoInimigos() {
@@ -206,7 +208,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 					enemy.setGridY(caminho.get(caminho.size() - 1).getPosY());
 				}
 			}
-			grid.setVisitedToEmpty();;
+			grid.setVisitedToEmpty();
 		}
 	}
 

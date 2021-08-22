@@ -12,103 +12,108 @@ class TestMatrixGraph {
 	@Test
 	void simpleMatrixAllDFS(TestInfo testInfo) {
 		System.out.println(testInfo.getDisplayName());
-		
+
 		final int sizeX = 3;
 		final int sizeY = 3;
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		
-		GraphMatrix<Integer> gm = new GraphMatrix<Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN);
-		
+		final int COST = 0;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
+				COST);
+
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());
 		assertEquals(FORBIDDEN, gm.getFORBIDDEN());
 		assertEquals(sizeX, gm.getSizeX());
 		assertEquals(sizeY, gm.getSizeY());
-		
+
 		gm.printMatrix();
 		List<Position> visited = gm.bfs();
 		gm.printMatrix();
-		
+
 		assertNotNull(visited);
 		System.out.println("visited");
 		for (Position p : visited) {
 			System.out.println(p.getPosX() + " " + p.getPosY());
 		}
-		
-		assertEquals(sizeX*sizeY, visited.size());
+
+		assertEquals(sizeX * sizeY, visited.size());
 	}
 
-	
 	@Test
 	void simpleMatrixDFSStart(TestInfo testInfo) {
 		System.out.println(testInfo.getDisplayName());
-		
+
 		final int sizeX = 10;
 		final int sizeY = 10;
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		
-		GraphMatrix<Integer> gm = new GraphMatrix<Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN);
-		
+		final int COST = 0;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
+				COST);
+
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());
 		assertEquals(FORBIDDEN, gm.getFORBIDDEN());
 		assertEquals(sizeX, gm.getSizeX());
 		assertEquals(sizeY, gm.getSizeY());
-		
+
 		gm.printMatrix();
-		List<Position> visited = gm.bfs(new Position(sizeX/2, sizeY/2));
+		List<Position> visited = gm.bfs(new Position(sizeX / 2, sizeY / 2));
 		gm.printMatrix();
-		
+
 		assertNotNull(visited);
 		System.out.println("visited");
 		for (Position p : visited) {
 			System.out.println(p.getPosX() + " " + p.getPosY());
 		}
-		
-		assertEquals(sizeX*sizeY, visited.size());
+
+		assertEquals(sizeX * sizeY, visited.size());
 	}
-	
+
 	@Test
 	void simpleMatrixDFSStartEnd(TestInfo testInfo) {
 		System.out.println(testInfo.getDisplayName());
-		
+
 		final int sizeX = 10;
 		final int sizeY = 10;
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		
-		GraphMatrix<Integer> gm = new GraphMatrix<Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN);
-		
+		final int COST = 0;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
+				COST);
+
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());
 		assertEquals(FORBIDDEN, gm.getFORBIDDEN());
 		assertEquals(sizeX, gm.getSizeX());
 		assertEquals(sizeY, gm.getSizeY());
-		
+
 		gm.printMatrix();
-		List<Position> path = gm.bfs(new Position(0, 0), new Position(sizeX/2, sizeY/2));
+		List<Position> path = gm.bfs(new Position(0, 0), new Position(sizeX / 2, sizeY / 2));
 		gm.printMatrix();
-		
+
 		assertNotNull(path);
 		System.out.println("visited");
 		for (Position p : path) {
 			System.out.println(p.getPosX() + " " + p.getPosY());
 		}
-		
+
 		assertEquals(false, path.isEmpty());
-		
+
 		System.out.println("path");
 		gm.setVisitedToEmpty();
-		
+
 		for (Position p : path) {
-			gm.setElement(p.getPosX(), p.getPosY(), gm.getVISITED());
+			gm.setElementValue(p.getPosX(), p.getPosY(), gm.getVISITED());
 		}
-		
+
 		gm.printMatrix();
 	}
 }
