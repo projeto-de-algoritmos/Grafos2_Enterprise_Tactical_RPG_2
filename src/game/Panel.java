@@ -24,6 +24,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	private static int WIDTH = 500;
 	private static int HEIGHT = 500;
 	private Entity player;
+	private Map map;
 	private List<Position> preview;
 	private GraphMatrix<Integer, Integer> grid;
 	private boolean running;
@@ -53,6 +54,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		enemies.add(new Enemy(enemyMoves, 10, 15, 25, 8, 10, 10, Color.RED));
 		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, -1, initialCost);
 		preview = new ArrayList<Position>();
+		map = new Map(grid, WIDTH, HEIGHT, 20, 20);
 
 		start();
 	}
@@ -66,19 +68,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 		Graphics2D g2d = (Graphics2D) g;
 
-		// Desenha a Grade (Possivelmente alterar para uma classe)
-		g2d.clearRect(0, 0, WIDTH, HEIGHT);
-		g2d.setColor(Color.GREEN);
-		g2d.fillRect(0, 0, WIDTH, HEIGHT);
-		g2d.setColor(Color.BLACK);
-		int Wsize = WIDTH / 20;
-		int Hsize = HEIGHT / 20;
-		for (int i = 0; i <= WIDTH; i += Wsize) {
-			g2d.drawLine(i, 0, i, WIDTH);
-		}
-		for (int i = 0; i <= HEIGHT; i += Hsize) {
-			g2d.drawLine(0, i, HEIGHT, i);
-		}
+		// Desenha a Grade
+		map.draw(g2d);
 
 		// Desenha as linhas de caminho
 		drawPreview(g2d);
@@ -126,7 +117,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	@Override
 	public void mouseClicked(MouseEvent m) {
-		// Move o Jogador(Temporário)
+		// Move o Jogador
 		if (preview.size() <= player.getMoves() && !inPlayer) {
 			player.setGridX((m.getX() - 1) / 25);
 			player.setGridY((m.getY() - 1) / 25);

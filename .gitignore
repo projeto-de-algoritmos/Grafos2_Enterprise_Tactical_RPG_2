@@ -3,3 +3,6 @@ bin/
 
 # Vim swap
 *.swp
+
+# Module-info if generated
+src/module-info.java
