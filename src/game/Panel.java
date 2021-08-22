@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JPanel;
 
@@ -55,8 +56,16 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, -1, initialCost);
 		preview = new ArrayList<Position>();
 		map = new Map(grid, WIDTH, HEIGHT, 20, 20);
-
+		addRandomCosts(10); 
 		start();
+	}
+	// Altera o custo de até <number> casas aleatórias(Temporário)
+	private void addRandomCosts(int number) {
+		for(int i=0;i<number;i++) {
+			int randomNumA = ThreadLocalRandom.current().nextInt(0, 20);
+			int randomNumB = ThreadLocalRandom.current().nextInt(0, 20);
+			grid.setElementCost(randomNumA, randomNumB, 1);
+		}
 	}
 
 	private void start() {
