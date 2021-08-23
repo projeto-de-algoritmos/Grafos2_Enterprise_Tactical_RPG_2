@@ -291,14 +291,25 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 			List<Position> caminho = cheapestPathToList(grid.dijkstra(new Position(enemy.getGridX(), enemy.getGridY()),
 					new Position(player.getGridX(), player.getGridY())));
+
+			// Caminho do inimigo
 			if (!caminho.isEmpty()) {
-				if (caminho.size() > enemy.getMoves()) {
-					enemy.setGridX(caminho.get(enemy.getMoves()).getPosX());
-					enemy.setGridY(caminho.get(enemy.getMoves()).getPosY());
-				} else {
-					enemy.setGridX(caminho.get(caminho.size() - 1).getPosX());
-					enemy.setGridY(caminho.get(caminho.size() - 1).getPosY());
+				int cost = 0;
+				Position r = new Position(enemy.getGridX(), enemy.getGridY());
+				int enemyTileCost = grid.getElementCost(r);
+				for(Position p : caminho) {
+					cost += grid.getElementCost(p);
+					if(cost > enemy.getMoves()+enemyTileCost)
+						break;
+					else if (p.getPosX() == player.getGridX() && p.getPosY() == player.getGridY()) {
+						r = p;
+						break;
+					}
+					else
+						r = p;
 				}
+				enemy.setGridX(r.getPosX());
+				enemy.setGridY(r.getPosY());
 			}
 
 			// Reverter mudança
