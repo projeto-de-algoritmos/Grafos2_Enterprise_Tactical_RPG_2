@@ -22,8 +22,7 @@ public class Entity {
 
 	public Entity(Integer moves, Integer initialGridX, Integer initialGridY, Integer grid2PosMultiplyer,
 			Integer grid2PosBias, Integer height, Integer width, Color color) {
-		// Mais 1 porque conta a casa do Jogador conta
-		this.moves = moves + 1;
+		this.moves = moves;
 		this.grid2PosBias = grid2PosBias;
 		this.grid2PosMultiplyer = grid2PosMultiplyer;
 		this.width = width;

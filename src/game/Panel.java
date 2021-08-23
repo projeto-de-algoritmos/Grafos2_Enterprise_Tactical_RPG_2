@@ -39,6 +39,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	private int lastMouseX;
 	private int lastMouseY;
 	private boolean inPlayer;
+	private int moveCost;
 
 	private final int initialCost = 1;
 	private final int minimumCost = 0;
@@ -88,10 +89,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		hash.put(initialCost, Color.GREEN);
 		hash.put(initialCost + 1, Color.YELLOW);
 		hash.put(initialCost + 2, Color.ORANGE);
-		hash.put(initialCost + 3, Color.MAGENTA);
 
 		map = new Map(grid, hash, WIDTH, HEIGHT, 20, 20);
-		addRandomCosts(20, hash.size());
+		addRandomCosts(100, hash.size());
 		addRandomForbidden(20);
 
 		grid.setElementCost(player.getGridX(), player.getGridY(), initialCost);
@@ -105,7 +105,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		for (int i = 1; i <= number; i++) {
 			int randomX = ThreadLocalRandom.current().nextInt(0, 20);
 			int randomY = ThreadLocalRandom.current().nextInt(0, 20);
-			int randomCost = ThreadLocalRandom.current().nextInt(1, 4);
+			int randomCost = ThreadLocalRandom.current().nextInt(2, 4);
 			grid.setElementCost(randomX, randomY, randomCost);
 		}
 	}
@@ -113,9 +113,9 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	// Adiciona até <number> obstáculos intransponíveis(Temporário)
 	private void addRandomForbidden(int number) {
 		for (int i = 1; i <= number; i++) {
-			int randomNumA = ThreadLocalRandom.current().nextInt(0, 20);
-			int randomNumB = ThreadLocalRandom.current().nextInt(0, 20);
-			grid.setElementValue(randomNumA, randomNumB, FORBIDDEN);
+			int randomX = ThreadLocalRandom.current().nextInt(0, 20);
+			int randomY = ThreadLocalRandom.current().nextInt(0, 20);
+			grid.setElementValue(randomX, randomY, FORBIDDEN);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	@Override
 	public void mouseClicked(MouseEvent m) {
 		// Move o Jogador
-		if (preview.size() <= player.getMoves() && !inPlayer && !isForbidden(m)) {
+		if (moveCost <= player.getMoves() && !inPlayer && !isForbidden(m)) {
 			player.setGridX((m.getX() - 1) / 25);
 			player.setGridY((m.getY() - 1) / 25);
 			inPlayer = true;
@@ -225,20 +225,24 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	private void drawPreview(Graphics2D g) {
 		int x = -1;
 		int y = -1;
-		int counter = 0;
+		moveCost = 0;
 		g.setColor(Color.RED);
 		if (!preview.isEmpty() && !inPlayer) {
 			for (Position e : preview) {
-				if (counter >= player.getMoves())
+				if (moveCost > player.getMoves())
 					break;
-				if (x != -1 && y != -1)
-					g.drawLine(gridToCoord(e.getPosX()) + 12, gridToCoord(e.getPosY()) + 12, gridToCoord(x) + 12,
-							gridToCoord(y) + 12);
+				if (x != -1 && y != -1){
+					if(grid.getElementCost(e)+ moveCost <= player.getMoves())
+						g.drawLine(gridToCoord(e.getPosX()) + 12, gridToCoord(e.getPosY()) + 12, gridToCoord(x) + 12,
+								gridToCoord(y) + 12);
+					moveCost+= grid.getElementCost(e);
+				}
 				x = e.getPosX();
 				y = e.getPosY();
-				counter++;
+				
 			}
 		}
+		
 	}
 
 	private boolean isForbidden(MouseEvent m) {
