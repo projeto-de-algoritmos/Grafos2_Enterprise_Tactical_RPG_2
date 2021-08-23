@@ -149,6 +149,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	@Override
 	public void mouseMoved(MouseEvent m) {
+		stopOnTKO();
+		
 		// Coordenadas atuais do mouse na grade
 		int mx = coordToGrid(m.getX());
 		int my = coordToGrid(m.getY());
@@ -173,6 +175,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	@Override
 	public void mouseClicked(MouseEvent m) {
+		stopOnTKO();
+		
 		// Move o Jogador
 		if (moveCost <= player.getMoves() && !inPlayer && !isForbidden(m)) {
 			player.setGridX((m.getX() - 1) / 25);
@@ -204,6 +208,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 	@Override
 	public void mouseExited(MouseEvent m) {
+		stopOnTKO();
 		inPlayer = true;
 		lastMouseX = player.getGridX();
 		lastMouseY = player.getGridY();
@@ -259,6 +264,25 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 		return cpt.getPath();
 	}
+	
+	private void stopOnTKO() {
+		grid.setVisitedToEmpty();
+		// Ajuda a não entrar nos inimigos
+		for (Enemy e : enemies) {
+			grid.setElementValue(e.getGridX(), e.getGridY(), FORBIDDEN);
+		}
+		
+		List<Position> ps = grid.visitableNeighbours(player.getGridX(), player.getGridY());
+		
+		if (ps.isEmpty()) {
+			stop();
+		}
+		
+		// Reverter modificação
+		for (Enemy e : enemies) {
+			grid.setElementValue(e.getGridX(), e.getGridY(), EMPTY);
+		}
+	}
 
 	private void encontraCaminho() {
 		grid.setVisitedToEmpty();
@@ -281,6 +305,8 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	}
 
 	private void encontraCaminhoInimigos() {
+		grid.setVisitedToEmpty();
+		
 		for (Enemy enemy : enemies) {
 			// Impedir inimigos de entrarem uns nos outros
 			for (Enemy otherEnemy : enemies) {

@@ -207,7 +207,7 @@ public class GraphMatrix<ValueT, CostT> {
 		return null;
 	}
 
-	List<Position> neighbours(Integer lineIndex, Integer columnIndex) {
+	private List<Position> neighbours(Integer lineIndex, Integer columnIndex) {
 		List<Position> nbrs = new ArrayList<Position>();
 
 		Position n = north(lineIndex, columnIndex);
@@ -231,20 +231,11 @@ public class GraphMatrix<ValueT, CostT> {
 			nbrs.add(w);
 		}
 
-		if (nbrs.isEmpty()) {
-			nbrs = null;
-		}
-
 		return nbrs;
 	}
 
-	List<Position> visitableNeighbours(Integer lineIndex, Integer columnIndex) {
+	public List<Position> visitableNeighbours(Integer lineIndex, Integer columnIndex) {
 		List<Position> ns = neighbours(lineIndex, columnIndex);
-
-		if (ns == null) {
-			return null;
-		}
-
 		List<Position> vns = new ArrayList<Position>();
 
 		for (Position neighbour : ns) {
@@ -253,14 +244,10 @@ public class GraphMatrix<ValueT, CostT> {
 			}
 		}
 
-		if (vns.isEmpty()) {
-			vns = null;
-		}
-
 		return vns;
 	}
 
-	List<Position> visitableNeighbours(Position p) {
+	public List<Position> visitableNeighbours(Position p) {
 		return visitableNeighbours(p.getPosX(), p.getPosY());
 	}
 
@@ -279,7 +266,7 @@ public class GraphMatrix<ValueT, CostT> {
 						Position p = nodeQueue.remove();
 
 						List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-						if (ns == null) {
+						if (ns.isEmpty()) {
 							continue;
 						} else {
 							for (Position n : ns) {
@@ -316,7 +303,7 @@ public class GraphMatrix<ValueT, CostT> {
 			Position p = nodeQueue.remove();
 
 			List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-			if (ns == null) {
+			if (ns.isEmpty()) {
 				continue;
 			} else {
 				for (Position n : ns) {
@@ -364,7 +351,7 @@ public class GraphMatrix<ValueT, CostT> {
 			Position p = nodeQueue.remove();
 
 			List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-			if (ns == null) {
+			if (ns.isEmpty()) {
 				continue;
 			} else {
 				for (Position n : ns) {
@@ -463,10 +450,6 @@ public class GraphMatrix<ValueT, CostT> {
 			}
 
 			for (Position nodeW : visitableNeighbours(nodeV)) {
-				if (nodeW == null) {
-					continue;
-				}
-
 				if (nodeVisited.get(nodeW)) {
 					continue;
 				}
