@@ -1,4 +1,4 @@
-package graphs;
+package graphs.adjlist.dir;
 
 public class DirectedEdge<NodeT, CostT> {
 	private NodeT v;

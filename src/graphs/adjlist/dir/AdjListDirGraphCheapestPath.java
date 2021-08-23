@@ -1,4 +1,4 @@
-package graphs;
+package graphs.adjlist.dir;
 
 public class AdjListDirGraphCheapestPath<NodeT, CostT> {
 	private final AdjListDirGraph<NodeT, CostT> tree;

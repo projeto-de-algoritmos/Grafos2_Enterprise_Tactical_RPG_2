@@ -1,4 +1,4 @@
-package graphs;
+package graphs.adjlist.dir;
 
 import java.util.ArrayList;
 import java.util.Comparator;

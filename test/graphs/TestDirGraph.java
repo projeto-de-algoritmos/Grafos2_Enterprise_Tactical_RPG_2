@@ -9,6 +9,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import graphs.adjlist.dir.AdjListDirGraph;
+import graphs.adjlist.dir.AdjListDirGraphCheapestPath;
+import graphs.adjlist.dir.DirectedEdge;
 import graphs.exceptions.GraphException;
 
 class TestDirGraph {
