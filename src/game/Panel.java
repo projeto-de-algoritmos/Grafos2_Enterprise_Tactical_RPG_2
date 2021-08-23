@@ -115,6 +115,11 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		for (int i = 1; i <= number; i++) {
 			int randomX = ThreadLocalRandom.current().nextInt(0, 20);
 			int randomY = ThreadLocalRandom.current().nextInt(0, 20);
+			if (checkOverride(randomX, randomY, player.getGridX(), player.getGridY()))
+				continue;
+			for(Enemy enemy : enemies)
+				if (checkOverride(randomX, randomY, enemy.getGridX(), enemy.getGridY()))
+						continue;
 			grid.setElementValue(randomX, randomY, FORBIDDEN);
 		}
 	}
@@ -345,6 +350,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 			grid.setVisitedToEmpty();
 		}
+	}
+
+	private boolean checkOverride(int x1, int y1, int x2, int y2) {
+		return (x1 == x2 && y1 == y2);
 	}
 
 	private int gridToCoord(int v) {
