@@ -23,6 +23,7 @@ import graphs.Position;
 public class Panel extends JPanel implements MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 1L;
+	private static final Integer FORBIDDEN = -1;
 	private static int WIDTH = 500;
 	private static int HEIGHT = 500;
 	private Entity player;
@@ -54,7 +55,7 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		enemies.add(new Enemy(enemyMoves, 10, 10, 25, 8, 10, 10, Color.RED));
 		enemies.add(new Enemy(enemyMoves, 15, 15, 25, 8, 10, 10, Color.RED));
 		enemies.add(new Enemy(enemyMoves, 10, 15, 25, 8, 10, 10, Color.RED));
-		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, -1, initialCost);
+		grid = new GraphMatrix<Integer, Integer>(20, 20, 0, 1, FORBIDDEN, initialCost);
 		preview = new ArrayList<Position>();
 		
 		// Dicionário de custo/cores
@@ -66,15 +67,26 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		
 		map = new Map(grid, hash, WIDTH, HEIGHT, 20, 20);
 		addRandomCosts(10, hash.size()); 
+		addRandomForbidden(20); 
 		
 		start();
 	}
 	// Altera o custo de até <number> casas aleatórias(Temporário)
 	private void addRandomCosts(int number, int max) {
 		for(int i=1;i<=number;i++) {
+			int randomX = ThreadLocalRandom.current().nextInt(0, 20);
+			int randomY = ThreadLocalRandom.current().nextInt(0, 20);
+			int randomCost = ThreadLocalRandom.current().nextInt(1, 4);
+			grid.setElementCost(randomX, randomY, randomCost);
+		}
+	}
+	// Adiciona até <number> obstáculos intransponíveis(Temporário)
+	private void addRandomForbidden(int number) {
+		for(int i=1;i<=number;i++) {
 			int randomNumA = ThreadLocalRandom.current().nextInt(0, 20);
 			int randomNumB = ThreadLocalRandom.current().nextInt(0, 20);
-			grid.setElementCost(randomNumA, randomNumB, i%max);
+			grid.setElementValue(randomNumA, randomNumB, FORBIDDEN);
+			grid.setElementCost(randomNumA, randomNumB, FORBIDDEN);
 		}
 	}
 
@@ -106,9 +118,6 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 		running = false;
 	}
 
-	@Override
-	public void mouseDragged(MouseEvent m) {
-	}
 
 	@Override
 	public void mouseMoved(MouseEvent m) {
@@ -130,14 +139,14 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 
 				}
 			}
+			repaint();
 		}
-		repaint();
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent m) {
 		// Move o Jogador
-		if (preview.size() <= player.getMoves() && !inPlayer) {
+		if (preview.size() <= player.getMoves() && !inPlayer && !isForbidden(m)) {
 			player.setGridX((m.getX() - 1) / 25);
 			player.setGridY((m.getY() - 1) / 25);
 			inPlayer = true;
@@ -156,10 +165,10 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 					stop();
 				}
 			}
+			repaint();
 		}
-		repaint();
 	}
-
+	
 	@Override
 	public void mouseEntered(MouseEvent m) {
 		mouseMoved(m);
@@ -178,9 +187,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseReleased(MouseEvent m) {
 	}
 
+	@Override
+	public void mouseDragged(MouseEvent m) {
+	}
+	
 	private void drawPreview(Graphics2D g) {
 		int x = -1;
 		int y = -1;
@@ -198,6 +211,13 @@ public class Panel extends JPanel implements MouseListener, MouseMotionListener 
 				counter++;
 			}
 		}
+	}
+	
+	private boolean isForbidden(MouseEvent m) {
+		if(grid.getElementValue(coordToGrid(m.getX()), coordToGrid(m.getY())) == FORBIDDEN)
+			return true;
+		else
+			return false;
 	}
 
 	private void encontraCaminho() {
