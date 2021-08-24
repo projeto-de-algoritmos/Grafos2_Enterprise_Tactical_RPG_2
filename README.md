@@ -1,45 +1,71 @@
-**!! Atenção: Renomeie o seu repositório para (Tema)_(NomeDoProjeto). !!** 
+# Enterprise Tactical RPG 2
 
-Temas:
- - Grafos1
- - Grafos2
- - PD
- - D&C
- - Greed
- - Final 
- 
- **!! *Não coloque os nomes dos alunos no título do repositório*. Exemplo de título correto: Grafos2_Labirinto-do-Minotauro !!**
- 
- (Apague essa seção)
-
-# NomedoProjeto
-
-**Número da Lista**: X<br>
-**Conteúdo da Disciplina**: XXXXXXXXXX<br>
+**Número da Lista**: 25<br>
+**Conteúdo da Disciplina**: Grafos 2<br>
 
 ## Alunos
 |Matrícula | Aluno |
-| -- | -- |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
+| ---------- | -- |
+| 15/0058462 |  Davi Antônio da Silva Santos |
+| 18/0100840 |  Gabriel Azevedo Batalha |
 
 ## Sobre 
-Descreva os objetivos do seu projeto e como ele funciona. 
+ É uma evolução do projeto de Grafos 1, um jogo de sobrevivência onde o jogador precisa fugir durante o maior tempo possível das unidades inimigas.
 
 ## Screenshots
-Adicione 3 ou mais screenshots do projeto em funcionamento.
+
+![Jogo em execução](https://i.imgur.com/HdfvKZu.png)
+
+
+Jogo em execução
+
+![Jogo em execução 2](https://i.imgur.com/VMevzdd.png)
+
+
+Jogo em execução 
+
+![Tela de fim de jogo](https://i.imgur.com/zP7EUYP.png)
+
+Tela de fim de jogo
 
 ## Instalação 
-**Linguagem**: xxxxxx<br>
-**Framework**: (caso exista)<br>
-Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
+**Linguagem**: Java<br>
+**Framework**: Swing<br>
+
+### Requisitos
+- Java JRE 11 ou superior.
+  - JDK 11 ou superior exigido para compilar ou desenvolver
+- Computador com *mouse*.
 
 ## Uso 
-Explique como usar seu projeto caso haja algum passo a passo após o comando de execução.
+
+Clone o repositório para compilar o projeto ou baixe somente o .jar disponível nas [releases](https://github.com/projeto-de-algoritmos/Grafos2_Enterprise_Tactical_RPG_2/releases)
+
+
+Para executar o programa, use
+```
+java -jar EnterpriseTacticalRPG2.jar
+```
+O jogo é controlado pelo *mouse*.
+
+O jogador é um ponto azul na tela e deve fugir dos pontos vermelhos
+inimigos.
+
+As áreas são coloridas conforme os custos para atravessá-las. Regiões
+verdes possuem o custo mais baixo, e quanto mais amarelo, mais alto o
+custo. Regiões pretas são intransponíveis.
+
+A partida termina quando o jogador é alcançado por qualquer um dos
+inimigos ou quando não há movimentos válidos restantes.
+
+## Desenvolvimento
+Ao importar o projeto em sua IDE talvez seja necessário retirar o
+.jar. É possível que a IDE tente usar as classes empacotadas no lugar
+das que estão definidas no código fonte.
 
 ## Outros 
-Quaisquer outras informações sobre seu projeto podem ser descritas abaixo.
-
-
-
-
+Os movimentos do jogador e dos inimigos agora são determinados pelo 
+algoritmo de Dijkstra implementado para traçar o caminho de menor custo
+em uma matriz de elementos genéricos. Também agora existem casas com custos
+de travessia mais altos e obstáculos no mapa. Foram realizadas otimizações
+no código anterior para se diminuir o alto uso de CPU.
