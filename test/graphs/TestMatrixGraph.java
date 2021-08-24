@@ -2,7 +2,9 @@ package graphs;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -18,10 +20,27 @@ class TestMatrixGraph {
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		final int COST = 0;
+		final int initialCost = 0;
+		final int minimumCost = 0;
+		final int maximumCost = Integer.MAX_VALUE;
+		final Comparator<Integer> costComparator = new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				if (o1 < o2) {
+					return -1;
+				}
 
-		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
-				COST);
+				if (o1 > o2) {
+					return 1;
+				}
+
+				return 0;
+			}
+		};
+		final BinaryOperator<Integer> costAdder = (Integer a, Integer b) -> a + b;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN, initialCost, minimumCost,
+				maximumCost, costComparator, costAdder);
 
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());
@@ -51,10 +70,27 @@ class TestMatrixGraph {
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		final int COST = 0;
+		final int initialCost = 0;
+		final int minimumCost = 0;
+		final int maximumCost = Integer.MAX_VALUE;
+		final Comparator<Integer> costComparator = new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				if (o1 < o2) {
+					return -1;
+				}
 
-		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
-				COST);
+				if (o1 > o2) {
+					return 1;
+				}
+
+				return 0;
+			}
+		};
+		final BinaryOperator<Integer> costAdder = (Integer a, Integer b) -> a + b;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN, initialCost, minimumCost,
+				maximumCost, costComparator, costAdder);
 
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());
@@ -84,10 +120,27 @@ class TestMatrixGraph {
 		final int EMPTY = 0;
 		final int VISITED = 1;
 		final int FORBIDDEN = 2;
-		final int COST = 0;
+		final int initialCost = 0;
+		final int minimumCost = 0;
+		final int maximumCost = Integer.MAX_VALUE;
+		final Comparator<Integer> costComparator = new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				if (o1 < o2) {
+					return -1;
+				}
 
-		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN,
-				COST);
+				if (o1 > o2) {
+					return 1;
+				}
+
+				return 0;
+			}
+		};
+		final BinaryOperator<Integer> costAdder = (Integer a, Integer b) -> a + b;
+
+		GraphMatrix<Integer, Integer> gm = new GraphMatrix<Integer, Integer>(sizeX, sizeY, EMPTY, VISITED, FORBIDDEN, initialCost, minimumCost,
+				maximumCost, costComparator, costAdder);
 
 		assertEquals(EMPTY, gm.getEMPTY());
 		assertEquals(VISITED, gm.getVISITED());

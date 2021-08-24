@@ -1,5 +1,7 @@
 package graphs;
 
+import java.util.Objects;
+
 public class Position {
 	final private Integer posX;
 	final private Integer posY;
@@ -14,18 +16,20 @@ public class Position {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(posX, posY);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (this == obj) {
 			return true;
 		}
-
 		if (!(obj instanceof Position)) {
 			return false;
 		}
-
-		Position p = (Position) obj;
-
-		return getPosX().equals(p.getPosX()) && getPosY().equals(p.getPosY());
+		Position other = (Position) obj;
+		return Objects.equals(posX, other.posX) && Objects.equals(posY, other.posY);
 	}
 
 	public Integer getPosX() {

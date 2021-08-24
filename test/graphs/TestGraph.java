@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import graphs.adjlist.AdjListGraph;
+import graphs.adjlist.UndirectedEdge;
 import graphs.exceptions.NodeAlreadyExists;
 
 class TestGraph {

@@ -20,11 +20,13 @@ public class Gameover {
 	}
 
 	public Gameover(int score) {
+		JLabel stdMsg = new JLabel("You have survived " + String.valueOf(score - 1) + " Rounds!", JLabel.CENTER);
+		JLabel diedOn0th = new JLabel("You must die! Survived " + String.valueOf(0) + " Rounds!", JLabel.CENTER);
 
 		frame = new JFrame();
 		panel = new JPanel();
 		panel.setLayout(new GridLayout(3, 1));
-		label = new JLabel("You have survived " + String.valueOf(score - 1) + " Rounds!", JLabel.CENTER);
+		label = score == 0 ? diedOn0th : stdMsg;
 		panel.add(label);
 		panel.setLayout(new GridLayout(3, 1));
 

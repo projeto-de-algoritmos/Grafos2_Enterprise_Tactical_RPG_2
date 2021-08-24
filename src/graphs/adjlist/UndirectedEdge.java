@@ -1,4 +1,4 @@
-package graphs;
+package graphs.adjlist;
 
 public class UndirectedEdge<NodeT> {
 	private NodeT v;

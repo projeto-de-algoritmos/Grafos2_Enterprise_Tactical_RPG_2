@@ -1,10 +1,15 @@
 package graphs;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.function.BinaryOperator;
 
 public class GraphMatrix<ValueT, CostT> {
 	final private Integer sizeX;
@@ -13,17 +18,38 @@ public class GraphMatrix<ValueT, CostT> {
 	final private ValueT EMPTY;
 	final private ValueT FORBIDDEN;
 	final private CostT INITIALCOST;
+	final private CostT MINIMUMCOST;
+	final private CostT INFINITECOST;
+	final private Comparator<CostT> costComparator;
+	final private BinaryOperator<CostT> costAdder;
 
 	private List<List<DefaultMatrixElement<ValueT, CostT>>> matrix;
 
+	/**
+	 * @param lines
+	 * @param columns
+	 * @param emptyValue
+	 * @param visitedValue
+	 * @param forbiddenValue
+	 * @param initialCost
+	 * @param minimumCost
+	 * @param infiniteCost
+	 * @param costComparator
+	 * @param costAdder
+	 */
 	public GraphMatrix(Integer lines, Integer columns, ValueT emptyValue, ValueT visitedValue, ValueT forbiddenValue,
-			CostT initialCost) {
+			CostT initialCost, CostT minimumCost, CostT infiniteCost, Comparator<CostT> costComparator,
+			BinaryOperator<CostT> costAdder) {
 		this.sizeX = lines;
 		this.sizeY = columns;
 		this.EMPTY = emptyValue;
 		this.VISITED = visitedValue;
 		this.FORBIDDEN = forbiddenValue;
 		this.INITIALCOST = initialCost;
+		this.MINIMUMCOST = minimumCost;
+		this.INFINITECOST = infiniteCost;
+		this.costComparator = costComparator;
+		this.costAdder = costAdder;
 
 		initMatrix();
 	}
@@ -37,6 +63,18 @@ public class GraphMatrix<ValueT, CostT> {
 				matrix.get(i).add(j, new DefaultMatrixElement<ValueT, CostT>(EMPTY, INITIALCOST));
 			}
 		}
+	}
+
+	private List<Position> getVisitablePositions() {
+		List<Position> ps = new ArrayList<Position>(getSizeX() * getSizeY());
+		for (int i = 0; i < getSizeX(); i++) {
+			for (int j = 0; j < getSizeY(); j++) {
+				if (visitable(i, j)) {
+					ps.add(new Position(i, j));
+				}
+			}
+		}
+		return ps;
 	}
 
 	public void clearMatrix() {
@@ -169,7 +207,7 @@ public class GraphMatrix<ValueT, CostT> {
 		return null;
 	}
 
-	List<Position> neighbours(Integer lineIndex, Integer columnIndex) {
+	private List<Position> neighbours(Integer lineIndex, Integer columnIndex) {
 		List<Position> nbrs = new ArrayList<Position>();
 
 		Position n = north(lineIndex, columnIndex);
@@ -193,20 +231,11 @@ public class GraphMatrix<ValueT, CostT> {
 			nbrs.add(w);
 		}
 
-		if (nbrs.isEmpty()) {
-			nbrs = null;
-		}
-
 		return nbrs;
 	}
 
-	List<Position> visitableNeighbours(Integer lineIndex, Integer columnIndex) {
+	public List<Position> visitableNeighbours(Integer lineIndex, Integer columnIndex) {
 		List<Position> ns = neighbours(lineIndex, columnIndex);
-
-		if (ns == null) {
-			return null;
-		}
-
 		List<Position> vns = new ArrayList<Position>();
 
 		for (Position neighbour : ns) {
@@ -215,11 +244,11 @@ public class GraphMatrix<ValueT, CostT> {
 			}
 		}
 
-		if (vns.isEmpty()) {
-			vns = null;
-		}
-
 		return vns;
+	}
+
+	public List<Position> visitableNeighbours(Position p) {
+		return visitableNeighbours(p.getPosX(), p.getPosY());
 	}
 
 	public List<Position> bfs() {
@@ -237,7 +266,7 @@ public class GraphMatrix<ValueT, CostT> {
 						Position p = nodeQueue.remove();
 
 						List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-						if (ns == null) {
+						if (ns.isEmpty()) {
 							continue;
 						} else {
 							for (Position n : ns) {
@@ -274,7 +303,7 @@ public class GraphMatrix<ValueT, CostT> {
 			Position p = nodeQueue.remove();
 
 			List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-			if (ns == null) {
+			if (ns.isEmpty()) {
 				continue;
 			} else {
 				for (Position n : ns) {
@@ -322,7 +351,7 @@ public class GraphMatrix<ValueT, CostT> {
 			Position p = nodeQueue.remove();
 
 			List<Position> ns = visitableNeighbours(p.getPosX(), p.getPosY());
-			if (ns == null) {
+			if (ns.isEmpty()) {
 				continue;
 			} else {
 				for (Position n : ns) {
@@ -360,6 +389,116 @@ public class GraphMatrix<ValueT, CostT> {
 		}
 
 		return path;
+	}
+
+	public CheapestPath<Position, CostT> dijkstra(Position startNode, Position endNode) {
+		if (!isElementValid(startNode.getPosX(), startNode.getPosY())) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (!isElementValid(endNode.getPosX(), endNode.getPosY())) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		CheapestPath<Position, CostT> cpt = null;
+		Boolean foundEndNode = false;
+		Map<Position, Position> parents = new HashMap<Position, Position>();
+		Map<Position, CostT> costs = new HashMap<Position, CostT>();
+		Map<Position, Boolean> nodeVisited = new HashMap<Position, Boolean>();
+		List<Position> path = new ArrayList<Position>();
+		PriorityQueue<DijkstraHeapNode<Position, CostT>> minHeap = new PriorityQueue<DijkstraHeapNode<Position, CostT>>(
+				new Comparator<DijkstraHeapNode<Position, CostT>>() {
+					@Override
+					public int compare(DijkstraHeapNode<Position, CostT> o1, DijkstraHeapNode<Position, CostT> o2) {
+						return getCostComparator().compare(o1.getCost(), o2.getCost());
+					}
+				});
+
+		if (!visitable(startNode.getPosX(), startNode.getPosY())) {
+			return cpt;
+		}
+
+		if (startNode.equals(endNode)) {
+			path.add(startNode);
+			cpt = new CheapestPath<Position, CostT>(path, getMINIMUMCOST());
+			return cpt;
+		}
+
+		for (Position node : getVisitablePositions()) {
+			parents.put(node, null);
+		}
+
+		for (Position node : getVisitablePositions()) {
+			costs.put(node, getINFINITECOST());
+		}
+
+		for (Position node : getVisitablePositions()) {
+			nodeVisited.put(node, false);
+		}
+
+		parents.put(startNode, startNode);
+		costs.put(startNode, getMINIMUMCOST());
+		minHeap.add(new DijkstraHeapNode<Position, CostT>(startNode, costs.get(startNode)));
+
+		while (!minHeap.isEmpty()) {
+			DijkstraHeapNode<Position, CostT> heapNode = minHeap.remove();
+			Position nodeV = heapNode.getNode();
+			CostT nodeVCost = costs.get(nodeV);
+
+			if (nodeVCost.equals(getINFINITECOST())) {
+				break;
+			}
+
+			for (Position nodeW : visitableNeighbours(nodeV)) {
+				if (nodeVisited.get(nodeW)) {
+					continue;
+				}
+
+				if (costComparator.compare(getCostAdder().apply(nodeVCost, getElementCost(nodeW)),
+						costs.get(nodeW)) < 0) {
+					costs.put(nodeW, getCostAdder().apply(nodeVCost, getElementCost(nodeW)));
+					parents.put(nodeW, nodeV);
+
+					DijkstraHeapNode<Position, CostT> toAdd = new DijkstraHeapNode<Position, CostT>(nodeW,
+							costs.get(nodeW));
+
+					if (minHeap.contains(toAdd)) {
+						// forçar a atualização da heap (PQ do Java é meio estranha)
+						minHeap.remove(toAdd);
+						minHeap.add(toAdd);
+					} else {
+						minHeap.add(toAdd);
+					}
+				}
+			}
+
+			nodeVisited.put(nodeV, true);
+		}
+
+		foundEndNode = parents.get(endNode) != null;
+
+		if (foundEndNode) {
+			Position first = endNode;
+			Position last = parents.get(endNode);
+
+			Stack<Position> revPath = new Stack<Position>();
+
+			while (!last.equals(startNode)) {
+				revPath.push(first);
+				first = last;
+				last = parents.get(last);
+			}
+			revPath.push(first);
+			revPath.push(last);
+
+			while (!revPath.isEmpty()) {
+				path.add(revPath.pop());
+			}
+
+			cpt = new CheapestPath<Position, CostT>(path, costs.get(endNode));
+		}
+
+		return cpt;
 	}
 
 	public Boolean isPathValid(List<Position> ps) {
@@ -402,6 +541,34 @@ public class GraphMatrix<ValueT, CostT> {
 
 	public CostT getINITIALCOST() {
 		return INITIALCOST;
+	}
+
+	/**
+	 * @return the mINIMUMCOST
+	 */
+	public CostT getMINIMUMCOST() {
+		return MINIMUMCOST;
+	}
+
+	/**
+	 * @return the iNFINITECOST
+	 */
+	public CostT getINFINITECOST() {
+		return INFINITECOST;
+	}
+
+	/**
+	 * @return the costComparator
+	 */
+	public Comparator<CostT> getCostComparator() {
+		return costComparator;
+	}
+
+	/**
+	 * @return the costAdder
+	 */
+	public BinaryOperator<CostT> getCostAdder() {
+		return costAdder;
 	}
 
 	public ValueT getElementValue(Integer lineIndex, Integer columnIndex) {
